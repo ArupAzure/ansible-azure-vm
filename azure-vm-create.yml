@@ -1,0 +1,30 @@
+---
+- name: Create Azure VM
+  hosts: localhost
+  connection: local
+  collections:
+    - azure.azcollection
+  tasks:
+    - name: Create virtual machine
+      azure.azcollection.azure_rm_virtualmachine:
+        resource_group: myResourceGroup
+        name: myAnsibleVM
+        vm_size: Standard_B1s
+        admin_username: azureuser
+        ssh_password_enabled: false
+        ssh_public_keys:
+          - path: /home/azureuser/.ssh/authorized_keys
+            key_data: "{{ lookup('file', 'mykey.pub') }}"
+        image:
+          offer: UbuntuServer
+          publisher: Canonical
+          sku: 20_04-lts
+          version: latest
+        network_interface_names:
+          - myNIC
+        location: eastus
+        os_disk:
+          name: myOSDisk
+          caching: ReadWrite
+          create_option: FromImage
+        state: present
